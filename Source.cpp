@@ -36,9 +36,10 @@ GLfloat sizeVal = 0.15f;
 GLfloat offset = 0.1f;
 GLfloat rotStep = 1.0f;
 GLfloat lightStep = 0.1f;
+GLuint levels = 40;
 
-GLfloat light_ambient[] = { 0.0, 0.0, 0.0, 1.0 };
-GLfloat light_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
+GLfloat lightAmbient[] = { 0.0, 0.0, 0.0, 1.0 };
+GLfloat lightDiffuse[] = { 1.0, 1.0, 1.0, 1.0 };
 
 CMatrix4x4 shadowMatrix;
 CVector4 planeNormal(0.0f, 1.0f, 0.0f, 0.0f);
@@ -46,19 +47,19 @@ CVector4 lightPos(0.0, 2.0, -1.0, 0.0);
 
 /* Materials */
 
-float sphere_dif[] = {1.0f, 1.0f, 1.0f };
-float sphere_amb[] = { 0.4f, 0.4f, 0.4f };
-float sphere_shininess = 128;
+float sphereDif[] = {1.0f, 1.0f, 1.0f };
+float sphereAmb[] = { 0.4f, 0.4f, 0.4f };
+float sphereShininess = 128;
 GLuint sphereTex = 0;
 
-float cube_dif[] = { 1.0f, 0.3f, 0.3f };
-float cube_amb[] = { 0.4f, 0.4f, 0.4f };
+float cubeDif[] = { 1.0f, 0.3f, 0.3f };
+float cubeAmb[] = { 0.4f, 0.4f, 0.4f };
 
-float cyl_dif[] = { 0.2f, 0.8f, 0.2f, 0.2f }; // with opacity
-float cyl_amb[] = { 0.4f, 0.4f, 0.4f };
+float cylDif[] = { 0.2f, 0.8f, 0.2f, 0.2f }; // with opacity
+float cylAmb[] = { 0.4f, 0.4f, 0.4f };
 
-float room_dif[] = { 0.5f, 0.5f, 0.5f };
-float room_amb[] = { 0.4f, 0.4f, 0.4f };
+float roomDif[] = { 0.5f, 0.5f, 0.5f };
+float roomAmb[] = { 0.4f, 0.4f, 0.4f };
 
 /* Implementation */
 
@@ -161,17 +162,17 @@ void usualKey(unsigned char key, int x, int y)
         // Light color
         case '1':
         {
-            light_diffuse[0] = !light_diffuse[0];
+            lightDiffuse[0] = !lightDiffuse[0];
             break;
         }
         case '2':
         {
-            light_diffuse[1] = !light_diffuse[1];
+            lightDiffuse[1] = !lightDiffuse[1];
             break;
         }
         case '3':
         {
-            light_diffuse[2] = !light_diffuse[2];
+            lightDiffuse[2] = !lightDiffuse[2];
             break;
         }
         default: break;
@@ -222,8 +223,8 @@ void setLight()
 {
     glMatrixMode(GL_PROJECTION);
 
-    glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
 
     GLfloat lightCoords[] = { lightPos.x, lightPos.y, lightPos.z, lightPos.w };
     glLightfv(GL_LIGHT0, GL_POSITION, lightCoords);
@@ -242,8 +243,8 @@ void turnLightOff()
 
 void drawRoom()
 {
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, room_amb);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, room_dif);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, roomAmb);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, roomDif);
 
     GLfloat dim = 3 * sizeVal + 3 * offset;
 
@@ -262,8 +263,8 @@ void drawRoom()
 
 void drawSphere()
 {
-    glMaterialfv(GL_FRONT, GL_AMBIENT, sphere_amb);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, sphere_dif);
+    glMaterialfv(GL_FRONT, GL_AMBIENT, sphereAmb);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, sphereDif);
 
     glPushMatrix();
 
@@ -275,7 +276,7 @@ void drawSphere()
     glBindTexture(GL_TEXTURE_2D, sphereTex);
 
     glTranslatef(0.0f, sizeVal, 0.0f);
-    gluSphere(sphere, sizeVal, 40, 40);
+    gluSphere(sphere, sizeVal, levels, levels);
 
     glDisable(GL_TEXTURE_2D);
 
@@ -284,8 +285,8 @@ void drawSphere()
 
 void drawCube()
 {
-    glMaterialfv(GL_FRONT, GL_AMBIENT, cube_amb);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, cube_dif);
+    glMaterialfv(GL_FRONT, GL_AMBIENT, cubeAmb);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, cubeDif);
 
     glPushMatrix();
 
@@ -302,8 +303,8 @@ void drawCylinder()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glMaterialfv(GL_FRONT, GL_AMBIENT, cyl_amb);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, cyl_dif);
+    glMaterialfv(GL_FRONT, GL_AMBIENT, cylAmb);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, cylDif);
 
     glColor4f(0.0f, 0.0f, 0.0f, 0.2f); // for shadows - if DEPTH_TEST disabled
 
@@ -316,7 +317,7 @@ void drawCylinder()
     gluCylinder(cylinder,
                 sizeVal, sizeVal,
                 2 * sizeVal,
-                40, 40);
+                levels, levels);
 
     glPopMatrix();
 
@@ -325,7 +326,7 @@ void drawCylinder()
 
 GLuint loadTexture(const char * filename)
 {
-    if (filename == NULL)
+    if (!filename)
     {
         throw std::invalid_argument("Empty filename");
     }
